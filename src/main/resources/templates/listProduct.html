@@ -1,10 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
 <body>
-$END$
+<table border="2px">
+  <thead></thead>
+  <tr>
+    <th>Id</th>
+    <th>Product Name</th>
+    <th>Description</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Add to cart</th>
+  </tr>
+  <tbody id="product-list"></tbody>
+</table>
 </body>
+<script>
+  var myHeaders = new Headers();
+  let username = "nidhi";
+  let password = "nidhi";
+  const productsHTML = document.getElementById("product-list");
+  myHeaders.set("Authorization", "Basic " + btoa(username + ":" + password));
+
+  var requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  fetch("http://localhost:8096/getAllProducts", requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      console.log(result);
+      showProducts(result);
+    })
+    .catch((error) => console.log("error", error));
+  const showProducts = (products) => {
+    const rows = products.map((val, id) => {
+      return (
+        "<tr><td>" +
+        val.id +
+        "</td><td>" +
+        val.productName +
+        "</td><td>" +
+        val.productDescription +
+        "</td><td>" +
+        val.quantity +
+        "</td><td>" +
+        val.price 
+      );
+    });
+    productsHTML.innerHTML = rows.reduce((a, c) => a + c, "");
+  };
+</script>
 </html>
