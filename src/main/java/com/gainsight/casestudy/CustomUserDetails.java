@@ -22,6 +22,11 @@ public class CustomUserDetails implements UserDetails
     	 password = user.getPassword();
     	 authorities = Arrays.stream(user.getRoles().split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
      }
+
+	public CustomUserDetails() {
+
+	}
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
