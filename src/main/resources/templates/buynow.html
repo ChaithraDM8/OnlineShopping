@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>buynow</title>
+</head>
+<body>
+<div id="content">
+
+</div>
+<form id="submit">
+    <lable for="name">Name: </lable>
+    <input type="text" name="name" id="name"/>
+    <br/>
+    <lable for="address">Address: </lable>
+    <input type="text" name="address" id="address"/>
+    <br/>
+    <lable for="contact">Contact No.: </lable>
+    <input type="text" name="contact" id="contact"/>
+    <br/>
+    <lable for="quantity">Quantity</lable>
+    <input type="number" name="quantity" id="quantity"/>
+    <button id="order">Place Order</button>
+</form>
+<div id="error"></div>
+<script>
+    const username = localStorage.getItem("username");
+  const password = localStorage.getItem("password");
+  const contentHTML=document.getElementById("content");
+  console.log("we are at buy now page");
+  const at = location.href.indexOf("id");
+  console.log(at, location.href.slice(at+3));
+  const id = location.href.slice(at+3);
+  document
+    .getElementById("submit")
+    .addEventListener("submit", function (e) {
+        console.log("submit form");
+        e.preventDefault();
+        const data = e.target;
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        const raw = JSON.stringify({
+          "userName": data.name.value,
+          "userAddress": data.address.value,
+          "contactNumber": data.contact.value,
+          "transactionMode": "COD",
+          "orderProductQuantityList": [
+            {
+              "productId": id,
+              "quantity": data.quantity.value
+            }
+          ]
+        });
+        const requestOptions = {
+        mode: 'no-cors',
+    credentials: 'include',
+    headers: {
+      'Authorization': 'Basic ' +  btoa(username + ":" + password)
+    },
+          method: 'POST',
+          body: raw,
+          redirect: 'follow'
+        };
+
+        fetch("http://localhost:8096/placeOrder/false", requestOptions)
+          .then(response => {
+               if(response.status===200)
+                return response.text();
+               else
+                return "Failed";
+           })
+          .then(result => {
+              console.log(result);
+              if(result==="Failed")
+              {
+                document.getElementById("error").innerHTML = "Order Failed, please fill the details again!";
+              }
+              else
+              {
+              const order = document.getElementById("order");
+              order.innerHTML = "Order Placed!";
+              order.disabled = true;
+              location.href = "orderPlaced.html";
+              }
+          })
+          .catch(error => console.log('error', error));
+    });
+  const requestOptions = {
+  mode: 'no-cors',
+    credentials: 'include',
+    headers: {
+      'Authorization': 'Basic ' + + btoa(username + ":" + password)
+    },
+   method: 'GET',
+   redirect: 'follow'
+  };
+  console.log("hi");
+  console.log("there");
+  fetch("http://localhost:8096/getProductById/"+id, requestOptions)
+    .then(response => {
+    console.log(response);
+    return response.json()
+    })
+    .then(result => {
+      contentHTML.innerHTML = "Id: "+result.id + "<br/>Name: "+ result.productName + "<br/>Description: " + result.productDescription + "<br/>Price: " + result.price ;
+    })
+    .catch(error => console.log('error', error));
+
+</script>
+</body>
+</html>

@@ -1,10 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
 <body>
-$END$
+
+<table border="2px">
+  <thead></thead>
+  <tr>
+    <th>Id</th>
+    <th>Product Name</th>
+    <th>Description</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Add to cart</th>
+    <th><button onclick="goToCart()">View Cart</button></th>
+    <th><button onclick="goToOrders()">My Orders</button></th>
+  </tr>
+  <tbody id="product-list"></tbody>
+</table>
 </body>
+<script>
+
+  const username = localStorage.getItem("username");
+  const password = localStorage.getItem("password");
+  const productsHTML = document.getElementById("product-list");
+  const myHeaders = new Headers();
+  myHeaders.set("Authorization", "Basic " + btoa(username + ":" + password));
+
+  var requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+
+
+  fetch("http://localhost:8096/getAllProducts", requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      console.log(result);
+      showProducts(result);
+    })
+    .catch((error) => console.log("error", error));
+  const showProducts = (products) => {
+    const rows = products.map((val, id) => {
+      return (
+        "<tr><td>" +
+        val.id +
+        "</td><td>" +
+        val.productName +
+        "</td><td>" +
+        val.productDescription +
+        "</td><td>" +
+        val.quantity +
+        "</td><td>" +
+        val.price +
+        "</td><td><button id='cart_"+val.id+"' onclick='handleClick(" +
+        val.id +
+        ")'>ADD</button></td>" +
+        "<td><button id='buy_" +
+        val.id +
+        "' onclick='handleBuy("+
+        val.id +
+        ")'>Buy Now</button>"
+      );
+    });
+    productsHTML.innerHTML = rows.reduce((a, c) => a + c, "");
+  };
+
+  const handleClick = (id) => {
+    console.log("adding to cart the id: ", id);
+
+    const requestOptions = {
+    mode: 'no-cors',
+    credentials: 'include',
+
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch("http://localhost:8096/cart/"+id, requestOptions)
+      .then(response => {
+          const buttonHTML = document.getElementById('cart_'+id);
+          buttonHTML.innerHTML = "Added";
+          buttonHTML.disabled = true;
+      })
+      .catch(error => console.log('error', error));
+   };
+  const handleBuy = (id) => {
+    console.log("buynow button is clicked: ", id);
+
+    const requestOptions = {
+
+    credentials: 'include',
+    headers: {
+      'Authorization': 'Basic ' + + btoa(username + ":" + password)
+    },
+      method: 'GET',
+       headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch("http://localhost:8096/getProductDetails/true/"+id, requestOptions)
+      .then(response =>{
+
+          location.href = "buynow.html/?id="+id;
+      })
+      .catch(error => console.log('error', error));
+  }
+  const goToCart = () => {
+    location.href = "showCart.html";
+  }
+  const goToOrders = () => {
+    location.href = "myOrders.html";
+  }
+</script>
 </html>

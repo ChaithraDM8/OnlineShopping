@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form id="submit">
+
+  <label> UserName :</label>
+  <input  type="text"  name="name" id="name" placeholder="name" /></br>
+  <label> Password:</label>
+  <input type="password" name="password" id="desc" placeholder="password" /></br>
+  <button >Submit</button>
+</form>
+<div id="error"></div>
+<script>
+
+    document.getElementById("submit").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const myHeaders = new Headers();
+        myHeaders.set("Authorization", "Basic " + btoa(e.target.name.value + ":" + e.target.password.value));
+
+        const requestOptions = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+        fetch("http://localhost:8096/Users/login", requestOptions)
+          .then(response => {
+            console.log(response);
+                return response.text();
+
+    return response.json();
+
+            })
+          .then(result => {
+            console.log("response is: ",result)
+            if(result==="User Succesfully logged in"){
+                localStorage.setItem("username", e.target.name.value);
+                localStorage.setItem("password", e.target.password.value);
+                location.href = "listProduct.html";
+            }
+
+            else
+                document.getElementById("error").innerHTML = "Invalid username or password";
+          })
+          .catch(error => {
+          document.getElementById("error").innerHTML = "Invalid username or password";
+          console.log('error', error)
+          });
+
+    });
+</script>
+</body>
+</html>

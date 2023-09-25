@@ -1,21 +1,17 @@
 package com.gainsight.casestudy.Controller;
 
-import com.gainsight.casestudy.Entity.ImageModel;
 import com.gainsight.casestudy.Entity.Product;
+import com.gainsight.casestudy.Exceptions.ProductException;
 import com.gainsight.casestudy.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
+@CrossOrigin
 @RestController
 public class ProductController {
 
@@ -35,44 +31,21 @@ public class ProductController {
         return new ResponseEntity<>(p, HttpStatus.NOT_FOUND);
     }
 
-   // @PostMapping(value={"/addProduct"},consumes={MediaType.MULTIPART_FORM_DATA_VALUE})
     @PostMapping(value={"/addProduct"})
-    public HttpStatus addProduct(@RequestParam Product product) throws IOException {//, @RequestPart("imageFile")MultipartFile file) {
-//    @PostMapping(value={"/addProduct"})
-//    public HttpStatus addProduct(MultipartFile file,Product product) throws IOException {
-//        try{
-//            ImageModel images =uploadImage(file);
-//            product.setProductImages(images);
-//            if (productService.addOrModifyProduct(product))
-//                return HttpStatus.OK;
-//        return HttpStatus.CREATED;
-//        }catch (Exception e) {
-//            System.out.println(e.getMessage());
-//            return null;
+    public HttpStatus addProduct(@RequestBody Product product) throws ProductException {
             if (productService.addOrModifyProduct(product))
                return HttpStatus.OK;
         return HttpStatus.CREATED;
         }
 
-public ImageModel uploadImage(MultipartFile file) throws IOException {
-   ImageModel images=new ImageModel();
-    //for(MultipartFile file:multipartFiles){
-        ImageModel imageModel=new ImageModel(
-                file.getOriginalFilename(),
-                file.getContentType(),
-                file.getBytes());
-        //images.add(imageModel);
-   // }
-    //return images;
-    return imageModel;
-}
+
     @PutMapping("/modifyProduct")
-    public HttpStatus modifyProduct(MultipartFile file,@RequestBody Product product) throws IOException {
+    public HttpStatus modifyProduct(MultipartFile file,@RequestBody Product product) throws ProductException {
         if (productService.addOrModifyProduct(product))
             return HttpStatus.OK;
         return HttpStatus.CREATED;
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteProduct/{id}")
     public HttpStatus deleteProductById(@PathVariable(value = "id") int id) {
         if (productService.deleteProductById(id))
             return HttpStatus.OK;
@@ -80,10 +53,15 @@ public ImageModel uploadImage(MultipartFile file) throws IOException {
     }
 
     @GetMapping("/getProductByName/{name}")
-    public ResponseEntity<Product> getProductByName(@PathVariable(value="name") String productName) {
-        Product p = productService.getProductByName(productName);
+    public ResponseEntity<List<Product>> getProductByName(@PathVariable(value="name") String productName) {
+        List<Product> p = productService.getProductByName(productName);
         if (p != null)
             return new ResponseEntity<>(p, HttpStatus.OK);
         return new ResponseEntity<>(p, HttpStatus.NOT_FOUND);
+    }
+//to buy the cartitems i.e when user clicks on checkout
+    @GetMapping({"/getProductDetails/{isSingleProductCheckout}/{productId}"})
+    public List<Product> checkout(@PathVariable(name="isSingleProductCheckout") boolean isSingleProductCheckout,@PathVariable(name="productId") int productId){
+        return productService.getProductDetails(isSingleProductCheckout,productId);
     }
 }

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart</title>
+</head>
+<body>
+
+    <table border="2px">
+      <thead></thead>
+      <tr>
+        <th>Id</th>
+        <th>Product Name</th>
+        <th>Description</th>
+        <th>Price</th>
+          <th>Quantity</th>
+      </tr>
+      <tbody id="product-list"></tbody>
+    </table>
+    <form id="submit">
+    <lable for="name">Name: </lable>
+    <input type="text" name="name" id="name"/>
+    <br/>
+    <lable for="address">Address: </lable>
+    <input type="text" name="address" id="address"/>
+    <br/>
+    <lable for="contact">Contact No.: </lable>
+    <input type="text" name="contact" id="contact"/>
+    <br/>
+
+    <button id="order">Place Order</button>
+</form>
+<div id="error"></div>
+<script>
+    const username = localStorage.getItem("username");
+ const password = localStorage.getItem("password");
+ const productsHTML=document.getElementById("product-list");
+ let items;
+ document
+   .getElementById("submit")
+   .addEventListener("submit", function (e) {
+       console.log("submit form");
+       e.preventDefault();
+       const data = e.target;
+       console.log(data);
+       var myHeaders = new Headers();
+       myHeaders.append("Content-Type", "application/json");
+       const raw = {
+         "userName": data.name.value,
+         "userAddress": data.address.value,
+         "contactNumber": data.contact.value,
+         "transactionMode": "COD",
+         "orderProductQuantityList": items.map((val)=>{
+         console.log(val.product.id);
+           return {
+                "productId": val.product.id,
+                "quantity": document.getElementById(val.product.id).value
+           }
+         })
+       };
+       console.log(raw);
+       const requestOptions = {
+         method: 'POST',
+         body: JSON.stringify(raw),
+         headers: myHeaders,
+         redirect: 'follow'
+       };
+
+       fetch("http://localhost:8096/placeOrder/false", requestOptions)
+         .then(response => {
+              if(response.status===200)
+               return response.text();
+              else
+               return "Failed";
+          })
+         .then(result => {
+             console.log(result);
+             if(result==="Failed")
+             {
+               document.getElementById("error").innerHTML = "Order Failed, please fill the details again!";
+             }
+             else
+             {
+             const order = document.getElementById("order");
+             order.innerHTML = "Order Placed!";
+             order.disabled = true;
+             }
+         })
+         .catch(error => console.log('error', error));
+   });
+ const showProducts = (products) => {
+   items = [...products];
+   const rows = products.map((val, id) => {
+     return (
+       "<tr><td>" +
+       val.id +
+       "</td><td>" +
+       val.product.productName +
+       "</td><td>" +
+       val.product.productDescription +
+       "</td><td>" +
+       val.product.price +
+       "</td><td><input type='number' id='"+val.product.id+"' value='1'/></td>"
+     );
+   });
+   productsHTML.innerHTML = rows.reduce((a, c) => a + c, "");
+ };
+
+ var requestOptions = {
+    mode: 'no-cors',
+   credentials: 'include',
+   headers: {
+     'Authorization': 'Basic ' + + btoa(username + ":" + password)
+   },
+   method: 'GET',
+   redirect: 'follow'
+ };
+
+ fetch("http://localhost:8096/cart/getCartDetails", requestOptions)
+   .then(response => response.text())
+   .then(result => showProducts(result))
+   .catch(error => console.log('error', error));
+</script>
+</body>
+</html>
