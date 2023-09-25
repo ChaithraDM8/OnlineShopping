@@ -1,10 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
 </head>
 <body>
-$END$
+
+<form id="submit">
+
+  <label> Product Name :</label>
+  <input  type="text"  name="name" id="name" placeholder="name" />
+  <label> Product Description:</label>
+  <input type="text" name="desc" id="desc" placeholder="description" />
+  <label> Price:</label>
+  <input type="currency" name="price" id="price" placeholder="price" />
+  <label> Quantity:</label>
+  <input type="number" name="quantity" id="quantity" placeholder="quantity" />
+  <button>Add</button>
+
+</form>
+<div id="msg"></div>
+<script>
+  const username = localStorage.getItem("username");
+const password = localStorage.getItem("password");
+ const productsHTML = document.getElementById("product-list");
+  const myHeaders = new Headers();
+  myHeaders.set("Authorization", "Basic " + btoa(username + ":" + password));
+document
+ .getElementById("submit")
+ .addEventListener("submit", function (e) {
+   e.preventDefault();
+   console.log(e.target);
+   var myHeaders = new Headers();
+   myHeaders.append("Content-Type", "application/json");
+
+   var raw = JSON.stringify({
+     productName: e.target.name.value,
+     productDescription: e.target.desc.value,
+     price: e.target.price.value,
+     quantity: e.target.quantity.value,
+   });
+
+   var requestOptions = {
+    mode: 'no-cors',
+  credentials: 'include',
+  headers: {
+    'Authorization': 'Basic ' + + btoa(username + ":" + password)
+  },
+     method: "POST",
+     headers: myHeaders,
+     body: raw,
+     redirect: "follow",
+   };
+
+   fetch("http://localhost:8096/addProduct", requestOptions)
+     .then((response) => {
+       if (response.status !== 200)
+         document.getElementById("msg").innerHTML = "Error";
+       else {
+         document.getElementById("msg").innerHTML = "Product is added Successfully";
+         e.target.reset();
+       }
+     })
+     .catch((error) => console.log("error", error));
+ });
+</script>
 </body>
 </html>

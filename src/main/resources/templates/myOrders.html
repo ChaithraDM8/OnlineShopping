@@ -1,10 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Title</title>
 </head>
 <body>
-$END$
+<table border="2px">
+    <thead>
+    <tr>
+        <th>Order Id</th>
+        <th>Product Name</th>
+        <th>Amount</th>
+        <th>Status</th>
+
+    </tr>
+    </thead>
+    <tbody id="product-list"></tbody>
+</table>
 </body>
 </html>
+<script>
+    const username = localStorage.getItem("username");
+  const password = localStorage.getItem("password");
+
+    const productsHTML=document.getElementById("product-list");
+    const requestOptions = {
+
+    method: 'GET',
+headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+  redirect: 'follow'
+};
+
+fetch("http://localhost:8096/showAllOrders", requestOptions)
+  .then(response => response.json())
+  .then(result => showProducts(result))
+  .catch(error => console.log('error', error));
+
+    const showProducts = (products) => {
+    const rows = products.map((val, id) => {
+      return (
+        "<tr><td>" +
+        val.orderId +
+        "</td><td>" +
+        val.product.productName +
+        "</td><td>" +
+        val.orderAmount +
+        "</td><td>" +
+        val.orderStatus +
+        "</td></tr>"
+      );
+    });
+    productsHTML.innerHTML = rows.reduce((a, c) => a + c, "");
+  };
+
+</script>

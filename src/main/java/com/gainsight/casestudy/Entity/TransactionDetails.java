@@ -2,26 +2,27 @@ package com.gainsight.casestudy.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentDetails {
+@Getter
+@Setter
+public class TransactionDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private int id;
 
     @Column(name = "ORDER_ID")
-    private long orderId;
+    private int orderId;
 
     @Column(name = "MODE")
     private String paymentMode;
-
-    @Column(name = "REFERENCE_NUMBER")
-    private String referenceNumber;
 
     @Column(name = "PAYMENT_DATE")
     private Instant paymentDate;
@@ -30,7 +31,14 @@ public class PaymentDetails {
     private String paymentStatus;
 
     @Column(name = "AMOUNT")
-    private long amount;
+    private double amount;
 
+    public TransactionDetails(int orderId, String paymentMode, Instant paymentDate, String paymentStatus, double amount) {
+        this.orderId = orderId;
+        this.paymentMode = paymentMode;
+        this.paymentDate = paymentDate;
+        this.paymentStatus = paymentStatus;
+        this.amount = amount;
+    }
 }
 
